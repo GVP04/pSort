@@ -1,0 +1,358 @@
+#include <iostream>
+#include <Windows.h>
+
+typedef struct _STATSORT
+{
+    int nCmp;
+    int nCopyValue;
+    int nCmpIdx;
+    int nCopyIdx;
+    int nTickStart;
+    int nTickEnd;
+    int nMaxRec;
+}STATSORT, * PSTATSORT;
+
+STATSORT pSort;
+STATSORT qSort;
+
+
+void qs( int* Item, int left, int right, int curLevel)
+{
+    register int i, j;
+    int x,  y;
+
+    i = left;
+    j = right;
+     qSort.nCopyIdx += 2;
+
+   x = Item[(left + right) / 2];
+   qSort.nCopyValue++;
+
+
+    if (qSort.nMaxRec < curLevel) qSort.nMaxRec = curLevel;
+
+
+    do
+    {
+        while (Item[i] < x && i < right)
+        {
+            i++;
+            qSort.nCmpIdx ++;
+            qSort.nCmp++;
+        }
+
+        qSort.nCmp++;
+
+
+
+        while (x < Item[j] && j > left)
+        {
+            j--;
+            qSort.nCmpIdx++;
+            qSort.nCmp++;
+        }
+
+        qSort.nCmp++;
+
+
+        if (i <= j)
+        {
+            qSort.nCopyValue+=3;
+            qSort.nCopyIdx+=2;
+
+
+            y = Item[i];		Item[i] = Item[j];		Item[j] = y;
+            i++;			j--;
+        }
+
+        qSort.nCmpIdx++;
+
+        qSort.nCmpIdx++;
+    } while (i <= j);
+
+
+    if (left < j)
+        qs(Item, left, j, curLevel + 1);
+
+
+    if (i < right)
+        qs(Item, i, right, curLevel + 1);
+
+    qSort.nCmpIdx++;
+    qSort.nCmpIdx++;
+}
+
+int PSortStat(int nItems, int* ArrToSort, int** ArrIdx)
+{
+     int* idx1;
+     int* idx2;
+
+    if (nItems > 0 && ArrToSort)
+    {
+        int* idx1 = new int[nItems];
+        int* idx2 = new int[nItems];
+
+        //initial step
+        int i, k;
+
+        for (i = 0, k = 1; k < nItems; i++, k++)
+            if (ArrToSort[i] < ArrToSort[k])
+            {
+                idx1[i] = i++;
+                idx1[k] = k++;
+            }
+            else
+            {
+                idx1[i] = k;
+                idx1[k++] = i++;
+            }
+
+        if (i < nItems)  idx1[i] = i;
+
+        pSort.nCmp+= nItems /2 + 1;
+        pSort.nCopyIdx += nItems;
+
+
+        //main step
+        int* swapIdx1 = idx1;
+        int* swapIdx2 = idx2;
+
+        for (i = 2; i < nItems; i *= 2)
+        {
+            int dblI = i + i;
+            int* curIdx1 = swapIdx1;
+            int* curIdx2 = swapIdx1 + i;
+            int* MaxIdx = swapIdx1 + nItems;
+            int* stopIdx1 = curIdx1 + i;
+            int* stopIdx2 = curIdx2 + i;
+            int* destIdx = swapIdx2;
+            int* stopdestIdx = destIdx + nItems;
+
+            while (destIdx < stopdestIdx)
+            {
+                pSort.nCmpIdx+=3;
+                if (stopIdx1 > MaxIdx) stopIdx1 = MaxIdx;
+                if (stopIdx2 > MaxIdx) stopIdx2 = MaxIdx;
+
+                while (curIdx1 < stopIdx1 && curIdx2 < stopIdx2)
+                {
+                    pSort.nCmpIdx += 2;
+                    pSort.nCmp++;
+                    pSort.nCopyIdx++;
+
+                    if (ArrToSort[*curIdx1] < ArrToSort[*curIdx2])
+                        *(destIdx++) = *(curIdx1++);
+                    else
+                        *(destIdx++) = *(curIdx2++);
+                }
+
+                pSort.nCmpIdx++;
+                while (curIdx1 < stopIdx1)
+                {
+                    pSort.nCmpIdx ++;
+                    pSort.nCopyIdx++;
+                    *(destIdx++) = *(curIdx1++);
+                }
+
+                pSort.nCmpIdx++;
+                while (curIdx2 < stopIdx2)
+                {
+                    pSort.nCmpIdx++;
+                    pSort.nCopyIdx++;
+                    *(destIdx++) = *(curIdx2++);
+                }
+
+                curIdx1 += i;
+                curIdx2 += i;
+                stopIdx1 += dblI;
+                stopIdx2 += dblI;
+            }
+
+            pSort.nCopyIdx+=3;
+
+            int* tmpSwap = swapIdx1;
+            swapIdx1 = swapIdx2;
+            swapIdx2 = tmpSwap;
+        }
+
+        /*       for ( i = 0; i < nItems; i++)
+                   if (ArrToSort[swapIdx1[i]] != i)
+                   {
+                       i = i;
+
+                   }*/
+
+        if (ArrIdx)
+        {
+            *ArrIdx = swapIdx1;
+            delete[] swapIdx2;
+        }
+        else
+        {
+            for (i = 0; i < nItems; i++)
+                if (swapIdx1[i] != i)
+                {
+                    int curId = i;
+                    int swapValue = ArrToSort[curId];
+                    int swapIndex = curId;
+                    int nextId = swapIdx1[curId];
+
+                    pSort.nCopyValue++;
+                    pSort.nCopyIdx+=4;
+
+
+                    do
+                    {
+                        pSort.nCmpIdx++;
+
+                        pSort.nCopyValue++;
+                        pSort.nCopyIdx += 3;
+
+                        nextId = swapIdx1[curId];
+                        ArrToSort[curId] = ArrToSort[nextId];
+
+                        swapIdx1[curId] = curId;
+                        curId = nextId;
+
+                    } while (swapIdx1[nextId] != swapIndex);
+
+
+
+                    ArrToSort[nextId] = swapValue;
+                    swapIdx1[nextId] = nextId;
+
+                    pSort.nCopyValue++;
+                    pSort.nCopyIdx++;
+
+                }
+
+            /*    Check result
+                      for (i = 0; i < nItems; i++)
+                           if (ArrToSort[i] != i)
+                           {
+                               i = i;
+                               i+= nItems;
+                           }*/
+
+            delete[] idx1;
+            delete[] idx2;
+        }
+    }
+
+    return 0;
+}
+
+
+int main()
+{
+    std::cout << "Test PSort vs QSort!\n";
+    int j;
+    srand(GetTickCount());
+
+   int nItems;
+     nItems = 100000000;
+    int nTicksP = 0, nTicksQ = 0;
+
+    for (j = 1; j < 10000; j++)
+    {
+
+        int* arrToSort = new int[nItems];
+        int* arrToSortQS = new int[nItems];
+        int i;
+
+        for (i = 0; i < nItems; i++)
+            arrToSort[i] = i;
+
+
+        for (i = 0; i < nItems; i++)
+        {
+            int k = rand() % nItems;
+            int swapInt = arrToSort[i];
+            arrToSort[i] = arrToSort[k];
+            arrToSort[k] = swapInt;
+        }
+
+        for (i = 0; i < nItems; i++)
+        {
+            arrToSortQS[i] = arrToSort[i];
+        }
+
+        std::cout << j;
+        std::cout << "\t";
+        std::cout << nItems;
+        std::cout << "\t";
+        std::cout << nTicksP/(j+1);
+        std::cout << "\t";
+        std::cout << nTicksQ/(j+1);
+        std::cout << "\n";
+
+
+        pSort = { 0 };
+        pSort.nTickStart = GetTickCount();
+        PSortStat(nItems, arrToSort, NULL);
+        pSort.nTickEnd = GetTickCount();
+
+        std::cout << "\tPSORT\tnCmp =\t";
+        std::cout << pSort.nCmp;
+        std::cout << "\tnCmpIdx =\t";
+        std::cout << pSort.nCmpIdx;
+        std::cout << "\tnCopyIdx =\t";
+        std::cout << pSort.nCopyIdx;
+        std::cout << "\tnCopyValue =\t";
+        std::cout << pSort.nCopyValue;
+        std::cout << "\tnMaxRec =\t";
+        std::cout << pSort.nMaxRec;
+        std::cout << "\tnTickStart =\t";
+        std::cout << pSort.nTickStart;
+        std::cout << "\tnTickEnd =\t";
+        std::cout << pSort.nTickEnd;
+        std::cout << "\tnTicks =\t";
+        nTicksP += pSort.nTickEnd - pSort.nTickStart;
+        std::cout << pSort.nTickEnd - pSort.nTickStart;
+        std::cout << "\n";
+
+
+        qSort = { 0 };
+        qSort.nTickStart = GetTickCount();
+        qs(arrToSortQS,0, nItems -1, 1);
+        qSort.nTickEnd = GetTickCount();
+
+        std::cout << "\tQSORT\tnCmp =\t";
+        std::cout << qSort.nCmp;
+        std::cout << "\tnCmpIdx =\t";
+        std::cout << qSort.nCmpIdx;
+        std::cout << "\tnCopyIdx =\t";
+        std::cout << qSort.nCopyIdx;
+        std::cout << "\tnCopyValue =\t";
+        std::cout << qSort.nCopyValue;
+        std::cout << "\tnMaxRec =\t";
+        std::cout << qSort.nMaxRec;
+        std::cout << "\tnTickStart =\t";
+        std::cout << qSort.nTickStart;
+        std::cout << "\tnTickEnd =\t";
+        std::cout << qSort.nTickEnd;
+        std::cout << "\tnTicks =\t";
+        nTicksQ += (qSort.nTickEnd - qSort.nTickStart);
+        std::cout << qSort.nTickEnd - qSort.nTickStart;
+        std::cout << "\n";
+
+        std::cout << "\tDLT q-p\tnCmp =\t";
+        std::cout << qSort.nCmp - pSort.nCmp;
+        std::cout << "\tnCmpIdx =\t";
+        std::cout << qSort.nCmpIdx- pSort.nCmpIdx;
+        std::cout << "\tnCopyIdx =\t";
+        std::cout << qSort.nCopyIdx- pSort.nCopyIdx;
+        std::cout << "\tnCopyValue =\t";
+        std::cout << qSort.nCopyValue -pSort.nCopyValue;
+        std::cout << "\tnMaxRec =\t";
+        std::cout << qSort.nMaxRec-pSort.nMaxRec;
+        std::cout << "\tnTick =\t";
+        std::cout << qSort.nTickEnd - qSort.nTickStart - pSort.nTickEnd + pSort.nTickStart;
+        std::cout << "\n";
+
+
+       delete[] arrToSort;
+       delete[] arrToSortQS;
+    } 
+}
+
