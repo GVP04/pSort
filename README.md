@@ -1,4 +1,5 @@
 pSort created for sorting strings, objects etc
+Easyly transforms to template
 
 Amount of value comparisoins < N*Log2(N) - N.
 
