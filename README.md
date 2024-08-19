@@ -20,3 +20,5 @@ Two modes
 int _PSort(int nItems, int* ArrToSort, int** ArrIdx)
 
 if ArrIdx is not NULL - creates IDX array. In other case sorts ArrToSort
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!! Need help with English. Please
