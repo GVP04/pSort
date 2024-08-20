@@ -1,7 +1,9 @@
 pSort created for sorting strings, objects etc
 Easyly transforms to template
 
-Amount of value comparisoins < N*Log2(N) - N.
+Amount of value comparisions (N>4):   
+MIN = N/2 * Log2(N)   - in case full sorted array
+MAX = N*Log2(N) - N   - in case reverse full sorted array
 
 Amount of copy values < N + Log2(N)
 
