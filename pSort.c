@@ -1,8 +1,5 @@
 int _PSort(int nItems, int* ArrToSort, int** ArrIdx)
 {
-    int* idx1;
-    int* idx2;
-
     if (nItems > 0 && ArrToSort)
     {
         int* idx1 = new int[nItems];
