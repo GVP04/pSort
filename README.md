@@ -23,4 +23,56 @@ int _PSort(int nItems, int* ArrToSort, int** ArrIdx)
 
 if ArrIdx is not NULL - creates IDX array. In other case sorts ArrToSort
 
+
+Example:
+
+Steps:
+1 sort idx as pairs - 1,2 3,4 ......
+2...i = 4 to n/log2(n)  sort idx as pair of sorted arrays - 1,2,3,4  4,6,7,8, ...... n/i <-> n/i + i   where i = 2^nIteration
+3 [real sort]
+
+--------- Initial data ----------
+ArrToSort   	2	5	8	9	11	3	2	1	7
+(virtual idx)	0	1	2	3	4	5	6	7	8
+---------------------------------
+
+Step1: 		order 0 1	order 2 3	order 4 5	order 6 7	order 8   idx2 ->>> idx1
+ArrToSort   	2	5	8	9	11	3	2	1	7
+ArrIdx1		0	1	2	3	5	4	7	6	8
+ArrIdx2		NA	NA	NA	NA	NA	NA	NA	NA	NA
+
+
+Step2.1:  	order 0 1 & 2 3			order 4 5 & 6 7			order 8   idx1 ->>> idx2
+ArrToSort   	2	5	8	9	11	3	2	1	7
+ArrIdx1		0	1	2	3	5	4	7	6	8
+ArrIdx2		0	1	2	3	7	6	5	4	8
+
+
+Step2.2:  	order 0 1 2 3	&   4 5 6 7					order 8   idx2 ->>> idx1
+ArrToSort   	2	5	8	9	11	3	2	1	7
+ArrIdx1		7	0	6	5	1	2	3	4	8
+ArrIdx2		0	1	2	3	7	6	5	4	8
+
+
+Step2.2:  	order 0 1 2 3 4 5 6 7	&  8   						idx1 ->>> idx2
+ArrToSort   	2	5	8	9	11	3	2	1	7
+ArrIdx1		7	0	6	5	1	2	3	4	8
+ArrIdx2		7	0	6	5	1	8	2	3	4	
+
+
+Step3: (if need)  SORT ArrToSort   by idx2
+ArrToSort   	1	2	2	3	5	7	8	9	11	
+ArrIdx1		7	0	6	5	1	2	3	4	8
+ArrIdx2		0	1	8	2	3	7	6	5	4
+
+
+
+
+
+
+
+
+
+
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!! Need help with English. Please
