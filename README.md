@@ -1,4 +1,9 @@
 pSort created for sorting strings, objects etc
+
+Better then qSort  (qSort/pSort):
+  by comparision ~ 1.5 
+  by copy values >= Log2(N)  
+
 Easyly transforms to template
 
 Amount of value comparisions (N>4):   
