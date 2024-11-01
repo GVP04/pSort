@@ -1,10 +1,12 @@
 pSort created for sorting strings, objects etc
 
 Better then qSort  (qSort/pSort):
-  by comparision ~ 1.5 
-  by copy values >= Log2(N)  
+  by comparision (qSort/pSort) = 1.5 
+  by copy values (qSort/pSort) >= Log2(N)  
 
 Easyly transforms to template
+Recursive variant is present
+Recursive variant is more easy to understand
 
 Amount of value comparisions (N>4):   
 MIN = N/2 * Log2(N)   - in case full sorted array
@@ -20,7 +22,6 @@ For random array with 100000000 (100M) elements:
         
 Not good with memory, but wins with heavy comparision or complex data
 Needs 2 * N * sizeof(int) aditional memory
-Recurrences not used, but is possible
 
 Two modes 
  1 create index array
